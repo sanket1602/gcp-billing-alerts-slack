@@ -60,7 +60,7 @@ def budget_alert_to_slack(cloud_event):
 
         # update Firestore timestamp ---
         doc_ref.set({"timestamp": now})
-        print("✅ Firestore timestamp updated")
+        print("Firestore timestamp updated")
 
         return "Alert sent"
 
