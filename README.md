@@ -6,4 +6,5 @@ This project is WIP!
 Architecture Diagram =
 
 
-![gcp-alerts1](https://github.com/user-attachments/assets/60a2450b-441d-4772-b694-dea34ab400a2)
+<img width="1319" height="194" alt="image" src="https://github.com/user-attachments/assets/a961228c-b594-4c5c-ba9f-d368ace13ea3" />
+
