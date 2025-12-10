@@ -6,7 +6,7 @@ This project is WIP!
 Architecture Diagram =
 
 
-<img width="1319" height="194" alt="image" src="https://github.com/user-attachments/assets/a961228c-b594-4c5c-ba9f-d368ace13ea3" />
+<img width="1356" height="306" alt="image" src="https://github.com/user-attachments/assets/84d04621-cf2b-4413-b407-b2baf4d7d946" />
 
 
 Flow -
@@ -15,6 +15,6 @@ Flow -
 2. Budget Alert is sent to Cloud Pub/Sub topic.
 3. Cloud Pub/Sub topic sends the alert to a Cloud Function.
 4. Cloud Function stores the timpestamp of the alert in Firestore DB to avoid frequent alerts.
-5. Cloud Function only sends alerts to Slack within the time which we configure.
+5. Cloud Function only sends alerts to Slack after comparing it with timestamp stored in DB.
 
 
