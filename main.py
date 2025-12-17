@@ -10,7 +10,7 @@ def budget_alert_to_slack(cloud_event):
     """Triggered by a Pub/Sub message, sends budget alerts to Slack with 4-hour throttle."""
 
     SLACK_WEBHOOK_URL = "YOUR-SLACK-WEBHOOK-URL"
-    MIN_HOURS_BETWEEN_ALERTS = 4
+    MIN_HOURS_BETWEEN_ALERTS = 4 ## I have set it to 4 hours because of requirement, you're free to choose whatever freqquency you want 8) 
 
     db = firestore.Client(database='billing-db-slack')
     now = datetime.now(timezone.utc)
