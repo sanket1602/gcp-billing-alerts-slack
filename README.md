@@ -2,13 +2,13 @@
 A solution which sends periodic GCP Billing Alerts to Slack. You can customize alert frequency according to your needs.
 
 
-Architecture Diagram =
+**Architecture Diagram**
 
 
 <img width="1356" height="306" alt="image" src="https://github.com/user-attachments/assets/84d04621-cf2b-4413-b407-b2baf4d7d946" />
 
 
-Flow =
+**Flow**
 
 1. A GCP Budget Alert is published to **Pub/Sub**
 2. The **Cloud Function** is triggered
@@ -19,14 +19,14 @@ Flow =
 7. Firestore is updated with the latest alert timestamp
 
 
-Prerequisits = 
+**Prerequisits**
 
 1. A GCP user account with Admin access.
 2. Your Slack incoming webhook URL (Steps are here = https://docs.slack.dev/messaging/sending-messages-using-incoming-webhooks/)
 3. Attention to detail :) 
 
 
-Code Explaination =
+**Code Explaination**
 
 
 **Dependencies**
