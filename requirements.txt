@@ -1,3 +1,6 @@
 functions-framework==3.*
 requests==2.31.0
 google-cloud-firestore==2.13.1
+
+
+## Have set this according to latest versions, please adjust according to your version constraints
