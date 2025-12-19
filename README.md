@@ -1,6 +1,12 @@
 # GCP Billing Alerts to Slack
 
-GCP Billing Alerts on Slack aren't a easy thing to configure since the GCP Cloud Pub-Sub sends a new event every 30 mins resulting noisy alerts. In this project, I have configured a system in where alerts are only sent on Slack on a specific time interval of our choice, we can customize it as per our needs and it is very easy to setup.
+
+GCP’s native billing alerts using Cloud Pub/Sub generate events every 30 minutes, which makes direct Slack integration noisy and impractical.
+
+To solve this, I built an alerting pipeline using Cloud Pub/Sub, Cloud Functions, and Firestore. Billing events are ingested, aggregated, and rate-limited, and Slack notifications are sent only at configurable intervals. This approach reduces alert noise while retaining visibility into billing trends. The solution is simple to deploy and easily configurable based on operational needs.
+You can use this project by copy pasting the main.py and requirements.txt file into your environment.
+
+
 
 
 **Architecture Diagram**
