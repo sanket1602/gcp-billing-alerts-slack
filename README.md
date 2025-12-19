@@ -1,5 +1,6 @@
-# gcp-billing-alerts-slack
-A solution which sends periodic GCP Billing Alerts to Slack. You can customize alert frequency according to your needs.
+# GCP Billing Alerts to Slack
+
+GCP Billing Alerts on Slack aren't a easy thing to configure since the GCP Cloud Pub-Sub sends a new event every 30 mins resulting noisy alerts. In this project, I have configured a system in where alerts are only sent on Slack on a specific time interval of our choice, we can customize it as per our needs and it is very easy to setup.
 
 
 **Architecture Diagram**
