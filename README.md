@@ -4,18 +4,16 @@
 GCP’s native billing alerts using Cloud Pub/Sub generate events every 30 minutes, which makes direct Slack integration noisy and impractical.
 
 To solve this, I built an alerting pipeline using Cloud Pub/Sub, Cloud Functions, and Firestore. Billing events are ingested, aggregated, and rate-limited, and Slack notifications are sent only at configurable intervals. This approach reduces alert noise while retaining visibility into billing trends. The solution is simple to deploy and easily configurable based on operational needs.
-You can use this project by copy pasting the main.py and requirements.txt file into your environment.
+<br/> 
 
-
-
-
-**Architecture Diagram**
+# Architecture Diagram
 
 
 <img width="1356" height="306" alt="image" src="https://github.com/user-attachments/assets/84d04621-cf2b-4413-b407-b2baf4d7d946" />
+<br/> 
+<br/> 
 
-
-**Flow**
+# Flow
 
 1. A GCP Budget Alert is published to **Pub/Sub**
 2. The **Cloud Function** is triggered
@@ -25,15 +23,95 @@ You can use this project by copy pasting the main.py and requirements.txt file i
 6. Otherwise, a Slack notification is sent
 7. Firestore is updated with the latest alert timestamp
 
+<br/> 
 
-**Prerequisits**
+# How to Use This Project
 
-1. A GCP user account with Admin access.
-2. Your Slack incoming webhook URL (Steps are here = https://docs.slack.dev/messaging/sending-messages-using-incoming-webhooks/)
-3. Attention to detail :) 
+Follow the steps below to deploy and use the GCP Budget Alert → Slack notification system.
+<br/>
 
+**1. Prerequisites**
 
-**Code Explaination**
+Ensure you have the following:
+
+* A Google Cloud Project.
+* Billing account linked to the project.
+* Google Cloud CLI (gcloud) installed and authenticated.
+* A Slack workspace with permission to create incoming webhooks.
+<br/>
+
+**2. Enable Required GCP APIs**
+  
+Enable the necessary APIs in your GCP project:
+````
+  gcloud services enable cloudfunctions.googleapis.com pubsub.googleapis.com firestore.googleapis.com cloudbuild.googleapis.com
+````
+<br/>
+
+**3. Create a Slack Incoming Webhook**
+
+1. Go to Slack → Settings → Apps
+2. Search for Incoming Webhooks
+3. Create a new webhook and select a channel
+4. Copy the generated webhook URL
+5. Replace the placeholder in the code:
+````
+SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/XXX/YYY/ZZZ"
+````
+<br/>
+
+**4. Create Firestore Database**
+
+Create a Firestore database (Native mode):
+````
+gcloud firestore databases create --database=billing-db-slack --location=us-central1
+````
+> ℹ️ Firestore is used to store the timestamp of the last sent alert for throttling.
+<br/>
+
+**5. Create Pub/Sub Topic for Budget Alerts**
+
+Create a Pub/Sub topic:
+````
+gcloud pubsub topics create budget-alerts
+````
+<br/>
+
+**6. Configure GCP Budget Alert**
+
+* Go to GCP Console → Billing → Budgets & alerts
+* Create a new Budget
+* Set the desired thresholds (e.g. 85%, 100%)
+* Under Actions, select: 1) Send to Pub/Sub 2) Choose the topic: budget-alerts   
+* Save the budget
+<br/>
+
+**7. Deploy the Cloud Function**
+
+Deploy the Cloud Function (Gen 2):
+````
+gcloud functions deploy budget_alert_to_slack --gen2 --runtime=python311 --region=us-central1 --entry-point=budget_alert_to_slack --trigger-topic=budget-alerts --source=. --set-env-vars=GOOGLE_CLOUD_PROJECT=$(gcloud config get-value project)
+````
+<br/>
+
+**8. Grant Firestore Permissions**
+
+Ensure the Cloud Function’s service account has access to Firestore:
+````
+gcloud projects add-iam-policy-binding $(gcloud config get-value project) --member="serviceAccount:$(gcloud projects describe $(gcloud config get-value project) --format='value(projectNumber)')@cloudbuild.gserviceaccount.com" --role="roles/datastore.user"
+````
+<br/>
+
+**9. Test the Setup**
+
+Publish a Test Message:
+````
+gcloud pubsub topics publish budget-alerts --message='{"budgetDisplayName": "Test Budget","costAmount": 4200,"budgetAmount": 5500,"currencyCode": "USD","alertThresholdExceeded": 0.85}'
+````
+<br/>
+
+#
+# Code Explaination
 
 
 **Dependencies**
@@ -46,6 +124,9 @@ from datetime import datetime, timezone
 import functions_framework
 from google.cloud import firestore
 ````
+<br/> 
+
+
 
 **Dependency Purpose**
 
@@ -59,6 +140,7 @@ from google.cloud import firestore
 | `google-cloud-firestore` | Store alert timestamps           |
 
 
+<br/> 
 
 
 **Cloud Function Trigger**
@@ -71,6 +153,7 @@ def budget_alert_to_slack(cloud_event):
 * Uses CloudEvents (required for Pub/Sub triggers in Cloud Functions Gen 2)
 * Automatically triggered when a Pub/Sub message is received
 
+<br/> 
 
 
 **Configuration** 
@@ -86,6 +169,7 @@ MIN_HOURS_BETWEEN_ALERTS = 4
 | `SLACK_WEBHOOK_URL`        | Slack Incoming Webhook URL      |
 | `MIN_HOURS_BETWEEN_ALERTS` | Minimum time gap between alerts |
 
+<br/> 
 
 
 **Firestore Setup (Throttling Mechanism)**
@@ -103,6 +187,7 @@ alerts/
 This ensures throttling works even if the function scales to multiple instances.
 
 
+<br/> 
 
 
 
@@ -113,6 +198,7 @@ payload = json.loads(
     base64.b64decode(data).decode("utf-8")
 )
 ````
+<br/> 
 
 **Example decoded payload:**
 
@@ -126,6 +212,7 @@ payload = json.loads(
 }
 ````
 
+<br/> 
 
 
 **Alert Throttling Logic**
@@ -144,8 +231,8 @@ if diff_hours < MIN_HOURS_BETWEEN_ALERTS:
 
 
 
-
-
+<br/> 
+ 
 
 
 **Slack Notification Format**
@@ -159,6 +246,7 @@ message = (
     f"Threshold: {payload.get('alertThresholdExceeded')}"
 )
 ````
+<br/> 
 
 **Example Slack Message**
 
@@ -170,6 +258,7 @@ Budget Amount: 5500 USD
 Threshold: 0.85
 ````
 
+<br/> 
 
 
 
@@ -189,6 +278,7 @@ resp = requests.post(
 * Throws an exception if Slack returns a non-200 response
 
 
+<br/> 
 
 
 **Updating Firestore Timestamp**
@@ -201,6 +291,7 @@ doc_ref.set({"timestamp": now})
 * Stores the time when the alert was sent
 * Used for future throttling decisions
 
+<br/> 
 
 
 **Error Handling**
@@ -216,9 +307,8 @@ except Exception as e:
 * Ensures failed executions are visible in GCP
 
 
-
-
-
+<br/> 
+<br/> 
 
 
 
